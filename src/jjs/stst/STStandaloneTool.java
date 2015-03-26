@@ -44,6 +44,7 @@ import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STErrorListener;
 import org.stringtemplate.v4.STGroup;
 import org.stringtemplate.v4.STGroupDir;
+import org.stringtemplate.v4.STGroupFile;
 import org.stringtemplate.v4.STRawGroupDir;
 import org.stringtemplate.v4.STWriter;
 import org.stringtemplate.v4.misc.STMessage;
@@ -89,7 +90,7 @@ import org.json.JSONArray;
  * uses XML as its data model. Another text format that is just as expressive is JSON.
  * 
  * This command line program takes as input a text file in JSON format, the name of a 
- * template and optional group xxx and produces an output file that results from processing the
+ * template and optional group and produces an output file that results from processing the
  * named template with the data from the JSON file.
  * 
  * The command line syntax is
@@ -113,13 +114,12 @@ import org.json.JSONArray;
  * group files (.stg extension). 
  * 
  * TODO
- *  - handle group files
- *  - better error listener
  *  - update/test samples, examples, tests
  *  - automate build version and build number
  *  - independent encoding control for template, data, output
- *  - take some options from ENV VAR?
- *  - more testing: more error handeling, encodings
+ *  - take some options from ENV VAR or other configuration. Useful for -s
+ *  - configurable template and group file name extensions
+ *  - more testing: error handeling, encodings
  * 
  * future: 
  *  support renderers
@@ -162,6 +162,9 @@ public class STStandaloneTool
 
     // the JSON data used as input to the template
     private JSONObject data = null;
+
+    // flag to indicate there were compile time errors in the loaded template
+    private boolean compileError = false;
 
     public STStandaloneTool()
     {
@@ -327,7 +330,7 @@ public class STStandaloneTool
         {
             String format = resources.getString("JSONError");
             logError(MessageFormat.format(format, je.getLocalizedMessage()));
-            throw new RuntimeException(); // exit
+            throw new ExitException();
         }
         setData(data);
     }
@@ -348,13 +351,13 @@ public class STStandaloneTool
         {
             String format = resources.getString("DataFileNotFound");
             logError(MessageFormat.format(format, f.getPath()));
-            throw new RuntimeException(); // exit
+            throw new ExitException();
         }
         catch (IOException ioe)
         {
             String format = resources.getString("ErrorReadingData");
             logError(MessageFormat.format(format, ioe.getLocalizedMessage()));
-            throw new RuntimeException(); // exit
+            throw new ExitException();
         }
         setData(contents);
     }
@@ -375,58 +378,28 @@ public class STStandaloneTool
         {
             String format = resources.getString("ErrorReadingData");
             logError(MessageFormat.format(format, ioe.getLocalizedMessage()));
-            throw new RuntimeException(); // exit
+            throw new ExitException();
         }
         setData(contents);
     }
 
-    private class JSONAdaptor implements ModelAdaptor
-    {
-        @Override
-        public Object getProperty(Interpreter interp, ST self, Object o, Object property, String propertyName)
-            throws STNoSuchPropertyException
-        {
-            JSONObject jo = (JSONObject)o;
-            Object value;
-
-            if (property == null || !jo.has(propertyName))
-            {
-                throw new STNoSuchPropertyException(null, null, propertyName);
-            }
-            value = jo.get(propertyName);
-            if (value instanceof JSONArray)
-            {
-                value = convertJSONArrayToArray((JSONArray)value);
-            }
-            return value;
-        }
-
-    }
-
-    private Object[] convertJSONArrayToArray(JSONArray ja) {
-        int i;
-        Object array[] = new Object[ja.length()];
-
-        for (i = 0; i < ja.length(); i++)
-        {
-            array[i] = ja.get(i);
-        }
-        return array;
-    }
-
     /**
      * Set the group name of the main group when using a group file.
-     * The setGroupLoader must be called first. xxx
-     * 
+     *
+     * @param dir directory containing the group file
      * @param groupName name of the group file to process without the extension
      */
-    public void setGroup(String groupName)
+    public void setGroup(File dir, String groupName, String encoding)
     {
-//xxx        group = STGroup.loadGroup(groupName);
+        String groupPath = dir.getPath() + File.separatorChar + groupName + STGroup.GROUP_FILE_EXTENSION;
+        if (isDebugMode()) {
+            STGroup.trackCreationEvents = true;
+        }
+        group = new STGroupFile(groupPath, encoding, startChar, stopChar);
         if (group == null)
         {
             // an error has already been given
-            throw new RuntimeException(); // exit
+            throw new ExitException();
         }
         initGroup();
     }
@@ -435,9 +408,7 @@ public class STStandaloneTool
      * Set the group when using simple template files
      * All the template files must be under the given directory
      * 
-     * Note: only one of setGroupLoader, setGroup(name) or setGroup(dir, encoding) should be called xxx
-     * 
-     * @param dir path directory containing templates
+     * @param dir path of directory containing templates
      * @param encoding encoding for any and all template files if null the 
      * system default encoding is used
      */
@@ -472,7 +443,7 @@ public class STStandaloneTool
     public String toString()
     {
         StringBuilder sb = new StringBuilder();
-        sb.append("StringTemplateStandaloneTool:\n");
+        sb.append("STStandaloneTool:\n");
         sb.append("  Group: ").append(group.getName()).append("\n");
         sb.append("  Raw: ").append(raw ? "yes" : "no").append("\n");
         sb.append("  Indent: ").append(noIndent ? "yes" : "no").append("\n");
@@ -486,26 +457,77 @@ public class STStandaloneTool
     //
     // Implementation
     //
+    private class ExitException extends RuntimeException { }
+
+    private class JSONAdaptor implements ModelAdaptor
+    {
+        @Override
+        public Object getProperty(Interpreter interp, ST self, Object o, Object property, String propertyName)
+            throws STNoSuchPropertyException
+        {
+            JSONObject jo = (JSONObject)o;
+            Object value;
+
+            if (property == null || !jo.has(propertyName))
+            {
+                throw new STNoSuchPropertyException(null, null, propertyName);
+            }
+            value = jo.get(propertyName);
+            if (value instanceof JSONArray)
+            {
+                value = convertJSONArrayToArray((JSONArray)value);
+            } else if (value == JSONObject.NULL) {
+                value = null;
+            }
+            return value;
+        }
+
+        private Object[] convertJSONArrayToArray(JSONArray ja) {
+            int i;
+            Object array[] = new Object[ja.length()];
+
+            for (i = 0; i < ja.length(); i++)
+            {
+                array[i] = ja.get(i);
+            }
+            return array;
+        }
+    }
 
     private void initGroup()
     {
         group.setListener(errorListener);
+        // TODO support extensible renderers
         group.registerRenderer(String.class, new BasicFormatRenderer());
         group.registerModelAdaptor(JSONObject.class, new JSONAdaptor());
         STGroup.verbose = isVerboseMode();
-
-        // TODO
-        // support extensible renderers
     }
 
     private ST getTemplate(String templateName)
     {
-        ST st = group.getInstanceOf(templateName);
-        if (st == null)
+        ST st = null;
+
+        try {
+            compileError = false;
+            st = group.getInstanceOf(templateName);
+            if (st == null)
+            {
+                String msg = MessageFormat.format(resources.getString("NoSuchTemplate"), templateName);
+                logError(msg);
+                throw new ExitException();
+            }
+        }
+        catch (NullPointerException ex)
         {
-            String msg = MessageFormat.format(resources.getString("NoSuchTemplate"), templateName);
+            // bug?
+            // currently this happens if the template name doesn't match the file name
+            compileError = true;
+        }
+        if (compileError)
+        {
+            String msg = MessageFormat.format(resources.getString("ErrorGettingTemplate"), templateName);
             logError(msg);
-            throw new RuntimeException(); // exit
+            throw new ExitException();
         }
         return st;
     }
@@ -514,22 +536,22 @@ public class STStandaloneTool
     {
         JSONObject data = getData();
         // add top level attributes
-        for (String k: JSONObject.getNames(data))
-        {
-            Object value = data.get(k);
-            if (value instanceof JSONArray)
+        if (JSONObject.getNames(data) != null) {
+            JSONAdaptor a = new JSONAdaptor();
+
+            for (String k: JSONObject.getNames(data))
             {
-                value = convertJSONArrayToArray((JSONArray)value);
-            }
-            try
-            {
-                st.add(k, value);
-            }
-            catch (Exception ex) // STNoSuchAttributeException nsae)
-            {
-                if (isVerboseMode())
+                Object value = a.getProperty(null, st, data, k, k);
+                try
                 {
-                    logError(MessageFormat.format(resources.getString("IgnoreAttribute"), k));
+                    st.add(k, value);
+                }
+                catch (Exception ex) // STNoSuchAttributeException nsae)
+                {
+                    if (isVerboseMode())
+                    {
+                        logError(MessageFormat.format(resources.getString("IgnoreAttribute"), k));
+                    }
                 }
             }
         }
@@ -558,7 +580,7 @@ public class STStandaloneTool
         {
             String msg = resources.getString("RuntimeError");
             logError(msg + " " + ex.getLocalizedMessage());
-            throw new RuntimeException(); // exit
+            throw new ExitException();
         }
         finally
         {
@@ -581,7 +603,7 @@ public class STStandaloneTool
             {
                 String format = resources.getString("OutputFileNotFound");
                 logError(MessageFormat.format(format, outFile.getPath()));
-                throw new RuntimeException(); // exit
+                throw new ExitException();
             }
         }
         return new PrintWriter(System.out, true);
@@ -592,6 +614,7 @@ public class STStandaloneTool
         @Override
         public void compileTimeError(STMessage msg)
         {
+            compileError = true;
             report(resources.getString("CompileTimeError"), msg);
         }
 
@@ -617,8 +640,7 @@ public class STStandaloneTool
 
         private void report(String msgType, STMessage msg)
         {
-            logError("xxx from error listener: " + msgType + " " + msg.error.toString() + " " + msg.toString()); // xxxMessageFormat.format(format, msg));
-            String format = resources.getString("Warning"); //xxx
+            logError(msgType + " " + msg.toString());
         }
     }
 
@@ -637,7 +659,7 @@ public class STStandaloneTool
         STStandaloneTool stst = new STStandaloneTool();
         String templateSpec = null;
         String data = null;
-        ArrayList<File> dirs = new ArrayList<File>();
+        File templateDir = null;
         String encoding = System.getProperty("file.encoding");
         String startStop = "$$";
         boolean dirsParam = false;
@@ -651,14 +673,13 @@ public class STStandaloneTool
             if (dirsParam)
             {
                 dirsParam = false;
-                File d = new File(arg);
-                if (!d.isDirectory())
+                templateDir = new File(arg);
+                if (!templateDir.isDirectory())
                 {
                     String format = resources.getString("InvalidDirectory");
                     System.err.println(MessageFormat.format(format, arg));
                     continue;
                 }
-                dirs.add(d);
             }
             else if (outParam)
             {
@@ -693,7 +714,7 @@ public class STStandaloneTool
                 {
                     stst.setRaw(true);
                 }
-                else if (arg.equals("-d"))
+                else if (arg.equals("-d") || arg.equals("-i"))
                 {
                     stst.setDebugMode(true);
                 }
@@ -767,9 +788,11 @@ public class STStandaloneTool
             versionBanner();
         }
 
-        // add cwd to list of dirs
-        File cwd = new File(System.getProperty("user.dir"));
-        dirs.add(cwd);
+        // if no directory given use current dir
+        if (templateDir == null)
+        {
+            templateDir = new File(System.getProperty("user.dir"));
+        }
 
         try
         {
@@ -780,25 +803,12 @@ public class STStandaloneTool
             {
                 String groupName = templateSpec.substring(0, dot);
                 templateName = templateSpec.substring(dot + 1);
-    
-                // add all directories to group loader
-                StringBuilder sb = new StringBuilder();
-                int i = 0;
-                for (File dir : dirs)
-                {
-                    if (i > 0)
-                    {
-                        sb.append(":");
-                    }
-                    sb.append(dir.getPath());
-                    i++;
-                }
-//xxx                stst.setGroupLoader(sb.toString(), encoding);
-//xxx                stst.setGroup(groupName);
+
+                stst.setGroup(templateDir, groupName, encoding);
             }
             else
             {
-                stst.setGroup(dirs.get(0).getPath(), encoding);
+                stst.setGroup(templateDir.getPath(), encoding);
                 templateName = templateSpec;
             }
             
@@ -827,9 +837,9 @@ public class STStandaloneTool
                 System.out.println(MessageFormat.format(format, String.valueOf(time)));
             }
         }
-        catch (RuntimeException ex)
+        catch (ExitException ex)
         {
-            // the error was already logged 
+            // the error was already logged
             System.exit(1);
         }
     }
