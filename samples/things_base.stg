@@ -1,0 +1,20 @@
+// comments outside templates use // or /* */
+/*
+This example is similar to things.st but uses the group file syntax that allows multiple templates per file.
+Try it out with this command:
+    stst things_base.main things_drinks.json
+*/
+main(header, things) ::= <<
+$! inside a template you must use this kind of comment !$
+$list(title=header,items=things)$
+>>
+
+list(title, items) ::= <<
+$title$:
+$items : li(it)$
+>> 
+
+li(item) ::= <<
+* $item$
+
+>>

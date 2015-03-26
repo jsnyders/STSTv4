@@ -1,0 +1,20 @@
+{ books:
+[
+ { title: "Zippy Stories", pub: "Berkeley: And/Or", year: "1981", isbn: "0-915904-58-6" },
+ { title: "Nation of Pinheads", pub: "Berkeley: And/Or", year: "1982", isbn: "0-915904-71-3" },
+ { title: "Pointed Behavior", pub: "San Francisco: Last Gasp", year: "1984", isbn: "0-86719-315-8" },
+ { title: "Are We Having Fun Yet? Zippy the Pinhead's 29 Day Guide to Random Activities and Arbitrary Donuts", pub: "New York: Dutton", year: "1985", isbn: "0-525-48184-2" },
+ { title: "Pindemonium", pub: "San Francisco: Last Gasp", year: "1986", isbn: "0-86719-348-4" },
+ { title: "King Pin: New Zippy Strips", pub: "New York: Dutton", year: "1987", isbn: "0-525-48330-6" },
+ { title: "Pinhead's Progress: More Zippy Strips", pub: "New York: Dutton", year: "1989", isbn: "0-525-48468-X" },
+ { title: "From A to Zippy: Getting There Is All the Fun", pub: "New York: Penguin Books", year: "1991", isbn: "0-14-014988-0" },
+ { title: "Zippy's House of Fun: 54 Months of Sundays", pub: "Seattle: Fantagraphics", year: "1995", isbn: "1-56097-162-2" },
+ { title: 'Zippy Annual: A millennial melange of microcephalic malapropisms and metaphysical muzak. ("Vol. 1", "Impressions based on random data".)', pub: "Seattle: Fantagraphics", year: "2000", isbn: "1-56097-351-X" },
+ { title: 'Zippy Annual 2001. ("Vol. 2", "April 2001 - September 2001".)', pub: "Seattle: Fantagraphics", year: "2001", isbn: "1-56097-472-9" },
+ { title: 'Zippy Annual 2002. ("Vol. 3", "September 2001 - October 2002".)', pub: "Seattle: Fantagraphics", year: "2002", isbn: "1-56097-505-9" },
+ { title: 'Zippy Annual 2003. ("Vol. 4", "October 2002 - October 2003".)', pub: "Seattle: Fantagraphics", year: "2003", isbn: "1-56097-563-6" },
+ { title: 'Zippy: From Here to Absurdity" ("Vol. 5", November 2003 - November 2004.)', pub: "Seattle: Fantagraphics", year: "2004", isbn: "1-56097-618-7" },
+ { title: 'Type Z Personality ("Vol. 6", "December 2004 - December 2005".)', pub: "Seattle: Fantagraphics", year: "2005", isbn: "1-56097-698-5" },
+ { title: 'Connect The Polka Dots ("Vol. 7", December 2005 - August 2006".', pub: "Seattle: Fantagraphics", year: "2006", isbn: "978-1-56097-777-3" }
+]
+ }

@@ -1,0 +1,21 @@
+import "things_base.stg"
+
+/*
+This group file demonstrates a kind of inheritance things_HTML extends things_base.
+These replacements for list and li generate HTML fragment output.
+Notice that there is no main template here.
+Try it out with this command:
+    stst things_HTML.main things_drinks.json
+*/
+
+list(title, items) ::= <<
+<h1>$title$</h1>
+<ul>
+$items : li()$
+</ul>
+>> 
+
+li(item) ::= <<
+<li>$item$</li>
+
+>>
