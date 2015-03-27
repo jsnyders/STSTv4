@@ -46,7 +46,8 @@ found on your path.
 
  1 Download [stst-0.4.0.zip](http://www.hardlikesoftware.com/weblog/download/stst-0.4.0.zip)
 
- 2 Unzip stst-0.4.0.zip into a folder of your choice. For example C:\util\stst
+ 2 Unzip stst-0.4.0.zip into a folder of your choice. For example C:\util\stst or ~/util/stst
+
    This folder is referred as STST_HOME in the rest of the steps
 
  3 Edit the script used to run the tool
@@ -70,22 +71,28 @@ Optionally you can rename the file to "stst".
 ## USE
 Type stst -h for help.
 
+Depending on your OS and where you put the stst shell script and what you called it you may need to use
+./stst.sh, stst.sh or give a relative path to it.
+
 Just create some data files and template files.
 
 Then run stst from the same directory or use the -d option to specify a different
 directory.
 
 See the samples folder. Here are some commands you can try in the samples folder
-stst -h
-stst hello hello.json
-stst hello hello_empty.json
-stst things things_drinks.json
-stst things_base.main things_drinks.json
-stst things_HTML.main things_drinks.json
-stst -i -v things things_song.json
-stst -s "<>" things_ab things_song.json
+
+```
+    stst -h
+    stst hello hello.json
+    stst hello hello_empty.json
+    stst things things_drinks.json
+    stst things_base.main things_drinks.json
+    stst things_HTML.main things_drinks.json
+    stst -i -v things things_song.json
+    stst -s "<>" things_ab things_song.json
+```
 
 ## BUILDING
 You don't need to build anything but if you want too...
-You need a JDK and ant to build it.
-Get the [source](https://github.com/jsnyders/STSTv4) and use ant to build.
+
+You need a JDK and ant to build it. Get the [source](https://github.com/jsnyders/STSTv4) and use ant to build.
