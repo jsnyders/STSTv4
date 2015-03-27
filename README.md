@@ -44,7 +44,7 @@ NOTES:
 This is a Java program. You need java to run it. I used java 1.7 but other versions may work. Make sure java can be
 found on your path.
 
- 1 Download [stst-0.4.0.zip]() from www.hardlikesoftware.com
+ 1 Download [stst-0.4.0.zip](http://www.hardlikesoftware.com/weblog/download/stst-0.4.0.zip)
 
  2 Unzip stst-0.4.0.zip into a folder of your choice. For example C:\util\stst
    This folder is referred as STST_HOME in the rest of the steps
@@ -62,6 +62,7 @@ For Linux
 In the STST_HOME folder copy stst.sh.init to stst.sh.
 Then edit stst.sh and replace <home> with the path for STST_HOME
 You can copy stst.sh to somewhere on your path or update the path to include the STST_HOME folder.
+Change the mode so it can be executed.
 Optionally you can rename the file to "stst".
 
  4) From a command prompt type stst -h for usage. Then try out some of the samples in the samples folder.

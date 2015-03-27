@@ -3,5 +3,5 @@
 # Rename to "stst.sh" or "stst" and copy to somewhere on your path.
 # Make sure the java command is on the path
 STST_HOME=<home>
-CP=$STST_HOME/build/jar/stst.jar:$STST_HOME/lib/ST-4.0.8.jar
+CP=$STST_HOME/lib/stst.jar:$STST_HOME/lib/ST-4.0.8.jar
 java -cp $CP jjs.stst.STStandaloneTool $*
