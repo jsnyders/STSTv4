@@ -15,12 +15,12 @@
     </path>
 
     <target name="all" depends="jar">
-    	<buildnumber/>
+        <buildnumber/>
     </target>
 
     <target name="clean">
         <delete dir="${build.dir}"/>
-    	<delete file="${package}"/>
+        <delete file="${package}"/>
     </target>
 
     <target name="compile">
@@ -28,7 +28,7 @@
         <javac includeantruntime="false" srcdir="${src.dir}" destdir="${classes.dir}" classpathref="classpath"/>
         <copy todir="${classes.dir}">
             <fileset dir="${src.dir}">
-            	<include name="**/*.properties"/>
+                <include name="**/*.properties"/>
             </fileset>
         </copy>
     </target>
@@ -44,17 +44,15 @@
 
     <target name="package" depends="jar">
         <property name="package"     value="stst-${version}.zip"/>
-    	<zip destfile="${package}" basedir="." excludes="**">
+        <zip destfile="${package}" basedir="." excludes="**">
             <zipfileset dir="." includes="lib/**"/>
             <zipfileset dir="." includes="samples/**"/>
             <zipfileset dir="." includes="${jar}" fullpath="lib/stst.jar"/>
-            <zipfileset dir="." includes="src/**"/>
-            <zipfileset dir="." includes="build.xml"/>
             <zipfileset dir="." includes="README.md"/>
             <zipfileset dir="." includes="LICENSE.txt"/>
-            <zipfileset dir="." includes="stst.sh" fullpath="stst.sh.init"/>
-            <zipfileset dir="." includes="stst.bat" fullpath="stst.bat.init"/>
-    	</zip>
+            <zipfileset dir="." includes="stst.sh.init"/>
+            <zipfileset dir="." includes="stst.bat.init"/>
+        </zip>
     </target>
 
 </project>
