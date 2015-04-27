@@ -99,6 +99,7 @@ import org.json.JSONArray;
  *    -h                  display usage/help
  *    -n                  no indent
  *    -r                  (raw) templates files with no declarations
+ *    -f <name>           format renderer currently basic or javascript
  *    -i                  debug templates using inspector GUI
  *    -d                  same as -i
  *    -v                  verbose
@@ -122,7 +123,7 @@ import org.json.JSONArray;
  *  - more testing: error handeling, encodings
  * 
  * future: 
- *  support renderers
+ *  support loadable renderers
  *  interactive mode
  *  support more data formats: XML, CSV, YAML
  *  print diagnostic info
@@ -133,7 +134,7 @@ import org.json.JSONArray;
  */
 public class STStandaloneTool
 {
-    private static final String VERSION = "0.4"; // keep in sync with version in build.xml
+    private static final String VERSION = "0.4.1"; // keep in sync with version in build.xml
     private static final String RESOURCE_BUNDLE_NAME = "jjs.stst.ApplicationMessages";
 
     private static ResourceBundle resources = null;
@@ -156,6 +157,7 @@ public class STStandaloneTool
     private boolean verboseMode = false;
     private char startChar = '$';
     private char stopChar = '$';
+    private String rendererName = "";
 
     // where to write template output
     private File outFile = null;
@@ -286,6 +288,24 @@ public class STStandaloneTool
     public File getOutFile()
     {
         return outFile;
+    }
+
+    /**
+     * Set the format renderer. Currently the renderer must be compiled in.
+     * @param name name of format renderer
+     */
+    public void setFormatRenderer(String name)
+    {
+        this.rendererName = name;
+    }
+
+    /**
+     * Return the format renderer.
+     * @return name of format renderer
+     */
+    public String getFormatRenderer()
+    {
+        return rendererName;
     }
 
     /**
@@ -498,7 +518,14 @@ public class STStandaloneTool
     {
         group.setListener(errorListener);
         // TODO support extensible renderers
-        group.registerRenderer(String.class, new BasicFormatRenderer());
+        if (rendererName.equals("basic")) {
+            group.registerRenderer(String.class, new BasicFormatRenderer());
+        } else if (rendererName.equals("javascript")) {
+            group.registerRenderer(String.class, new JavaScriptFormatRenderer());
+        } else if (!rendererName.equals("")) {
+            String msg = MessageFormat.format(resources.getString("NoSuchRenderer"), rendererName);
+            logError(msg);
+        }
         group.registerModelAdaptor(JSONObject.class, new JSONAdaptor());
         STGroup.verbose = isVerboseMode();
     }
@@ -666,6 +693,7 @@ public class STStandaloneTool
         boolean outParam = false;
         boolean encodingParam = false;
         boolean startStopParam = false;
+        boolean rendererParam = false;
 
         int param = 0;
         for (String arg : args)
@@ -690,6 +718,11 @@ public class STStandaloneTool
             {
                 encodingParam = false;
                 encoding = arg;
+            }
+            else if (rendererParam)
+            {
+                rendererParam = false;
+                stst.setFormatRenderer(arg);
             }
             else if (startStopParam)
             {
@@ -721,6 +754,10 @@ public class STStandaloneTool
                 else if (arg.equals("-s"))
                 {
                     startStopParam = true;
+                }
+                else if (arg.equals("-f"))
+                {
+                    rendererParam = true;
                 }
                 else if (arg.equals("-v"))
                 {
@@ -811,7 +848,7 @@ public class STStandaloneTool
                 stst.setGroup(templateDir.getPath(), encoding);
                 templateName = templateSpec;
             }
-            
+
             if (data != null)
             {
                 stst.setData(new File(data), encoding);

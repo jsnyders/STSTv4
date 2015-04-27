@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project default="all">
-    <property name="version"     value="0.4.0"/><!-- update in STStandaloneTool.java also -->
+    <property name="version"     value="0.4.1"/><!-- update in STStandaloneTool.java also -->
     <property name="src.dir"     value="src"/>
     <property name="build.dir"   value="build"/>
     <property name="classes.dir" value="${build.dir}/classes"/>

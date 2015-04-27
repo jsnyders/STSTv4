@@ -23,7 +23,10 @@ package org.json;
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  SOFTWARE.
  */
-
+/*
+ * Changes Copyright (c) 2015 John Snyders under the same license terms above.
+ * Implement Map interface.
+ */
 import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
@@ -93,7 +96,7 @@ import java.util.Set;
  * @author JSON.org
  * @version 2014-05-03
  */
-public class JSONObject {
+public class JSONObject implements Map {
     /**
      * JSONObject.NULL is equivalent to the value that JavaScript calls null,
      * whilst Java's null is equivalent to the value that JavaScript calls
@@ -1680,4 +1683,148 @@ public class JSONObject {
             throw new JSONException(exception);
         }
     }
+
+    //
+    // Map methods
+    // The key must always be a string and must not be null
+
+    // probably not very useful but could be used to
+    // reuse the JSONObject
+    public void clear() {
+        map.clear();
+    }
+
+    // Same as has
+    public boolean containsKey(Object key) {
+        String skey = (String)key;
+        if (skey.equals("JSONString") || skey.equals("JSONStringIndent"))
+        {
+            return true;
+        }
+        return has(skey);
+    }
+
+    public boolean containsValue(Object value) {
+        return map.containsValue(value);
+    }
+
+    public Set entrySet() {
+        return map.entrySet();
+    }
+
+    // uses opt to keep with map semantics
+    public Object get(Object key) {
+        String skey = (String)key;
+        if (skey.equals("JSONString"))
+        {
+            return toString();
+        }
+        if (skey.equals("JSONStringIndent"))
+        {
+            return toString(4);
+        }
+        return opt(skey);
+    }
+
+    public boolean isEmpty() {
+        return map.isEmpty();
+    }
+
+    public Object put(Object key, Object value) {
+        return put((String)key, value);
+    }
+
+    // copies just the entries in m that would be valid in 
+    // a JSONObject
+    public void putAll(Map m) {
+        Iterator it = m.entrySet().iterator();
+        while (it.hasNext())
+        {
+            Map.Entry e = (Map.Entry)it.next();
+            Object key = e.getKey();
+            if (key != null && key instanceof String)
+            {
+                map.put((String)key, e.getValue());
+            }
+        }
+    }
+
+    // same as remove(String )
+    public Object remove(Object key) {
+        return remove((String)key);
+    }
+
+    // same as length
+    public int size() {
+        return map.size();
+    }
+
+    public Collection values() {
+        return map.values();
+    }
+
+    //
+    // Object methods
+    //
+
+    /**
+     * Two JSONObjects are equal if they have all the same
+     * properties and all the properties have the same values
+     */
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        if (!this.getClass().equals(obj.getClass())) {
+            return false;
+        }
+        JSONObject jo = (JSONObject) obj;
+        if (this.size() != jo.size()) {
+            return false;
+        }
+        Iterator it = this.map.keySet().iterator();
+        while (it.hasNext()) {
+            // all keys are strings right?!
+            String key = (String)it.next();
+            if (!jo.has(key)) {
+                return false;
+            }
+            Object a = this.map.get(key);
+            Object b = jo.get(key);
+            if (a == null && b == null)
+            {
+                continue;
+            }
+            if (a == null)
+            {
+                return false;
+            }
+            if (!a.equals(b)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+
+    /**
+     * A simple implementation: sum the hash codes of all the properties.
+     * Should be OK since it is not likely that these mutable objects
+     * will be used as hash keys.
+     */
+    @Override
+    public int hashCode()
+    {
+        int hash = 0;
+        Iterator it = map.keySet().iterator();
+        while (it.hasNext()) {
+            // all keys are strings right?!
+            String key = (String)it.next();
+            Object o = map.get(key);
+            hash += o.hashCode();
+        }
+        return hash;
+    }
+
 }
