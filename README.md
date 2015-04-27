@@ -39,14 +39,16 @@ NOTES:
 
  * There is a basic renderer that can be used to try out the format option syntax. The formats are toUpper, toLower,
  lpad,nn rpad,nn where nn is a the number of characters to pad. See the book samples.
+ * In version 0.4.1 you need to use the -f basic option to get the basic renderer. There is also -f javascript
+ renderer that supports format options "string" and "key"
 
 ## INSTALL INSTRUCTIONS
 This is a Java program. You need java to run it. I used java 1.7 but other versions may work. Make sure java can be
 found on your path.
 
- 1 Download [stst-0.4.0.zip](http://www.hardlikesoftware.com/weblog/download/stst-0.4.0.zip)
+ 1 Download [stst-0.4.1.zip](http://www.hardlikesoftware.com/weblog/download/stst-0.4.1.zip)
 
- 2 Unzip stst-0.4.0.zip into a folder of your choice. For example C:\util\stst or ~/util/stst
+ 2 Unzip stst-0.4.1.zip into a folder of your choice. For example C:\util\stst or ~/util/stst
 
    This folder is referred as STST_HOME in the rest of the steps
 
