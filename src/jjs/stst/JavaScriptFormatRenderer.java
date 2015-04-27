@@ -52,7 +52,7 @@ public class JavaScriptFormatRenderer implements AttributeRenderer
     private String escapeString(String str)
     {
         // this should be much better
-        return str.replace("\"", "\\\"").replace("\n", "\\n").replace("\r", "\\r").replace("\\", "\\\\");
+        return str.replace("\\", "\\\\").replace("\"", "\\\"").replace("\n", "\\n").replace("\r", "\\r");
     }
 
     public String toString(Object o, String formatName, Locale locale)

@@ -504,11 +504,16 @@ public class STStandaloneTool
 
         private Object[] convertJSONArrayToArray(JSONArray ja) {
             int i;
+            Object item;
             Object array[] = new Object[ja.length()];
 
             for (i = 0; i < ja.length(); i++)
             {
-                array[i] = ja.get(i);
+                item = ja.get(i);
+                if (item == JSONObject.NULL) {
+                    item = null;
+                }
+                array[i] = item;
             }
             return array;
         }
