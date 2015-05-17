@@ -512,6 +512,8 @@ public class STStandaloneTool
                 item = ja.get(i);
                 if (item == JSONObject.NULL) {
                     item = null;
+                } else if (item instanceof JSONArray) {
+                    item = convertJSONArrayToArray((JSONArray)item);
                 }
                 array[i] = item;
             }
@@ -672,7 +674,12 @@ public class STStandaloneTool
 
         private void report(String msgType, STMessage msg)
         {
-            logError(msgType + " " + msg.toString());
+            // only report the full error with potential stack trace if verbose
+            if (verboseMode) {
+                logError(msgType + " " + msg.toString());
+            } else {
+                logError(msgType + " " + String.format(msg.error.message, msg.arg, msg.arg2, msg.arg3) );
+            }
         }
     }
 
