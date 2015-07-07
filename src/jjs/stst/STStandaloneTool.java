@@ -98,6 +98,7 @@ import org.json.JSONArray;
  *    options:
  *    -h                  display usage/help
  *    -n                  no indent
+ *    -w <nn>             line width (ignored if -n given)
  *    -r                  (raw) templates files with no declarations
  *    -f <name>           format renderer currently basic or javascript
  *    -i                  debug templates using inspector GUI
@@ -158,6 +159,7 @@ public class STStandaloneTool
     private char startChar = '$';
     private char stopChar = '$';
     private String rendererName = "";
+    private int lineWidth = AutoIndentWriter.NO_WRAP;
 
     // where to write template output
     private File outFile = null;
@@ -189,6 +191,25 @@ public class STStandaloneTool
     public void setNoIndent(boolean noIndent)
     {
         this.noIndent = noIndent;
+    }
+
+
+    /**
+     * Controls the line width for wrapping
+     * @return the line width
+     */
+    public int getLineWidth()
+    {
+        return lineWidth;
+    }
+
+    /**
+     * Controls the line width for wrapping
+     * @param width width of line as a string
+     */
+    public void setLineWidth(String width)
+    {
+        lineWidth = Integer.parseInt(width);
     }
 
     /**
@@ -605,9 +626,9 @@ public class STStandaloneTool
             else
             {
                 writer = new AutoIndentWriter(out);
+                writer.setLineWidth(lineWidth);
             }
             st.write(writer);
-            out.println();
             out.flush();
         }
         catch (Exception ex)
@@ -706,6 +727,7 @@ public class STStandaloneTool
         boolean encodingParam = false;
         boolean startStopParam = false;
         boolean rendererParam = false;
+        boolean widthParam = false;
 
         int param = 0;
         for (String arg : args)
@@ -736,6 +758,11 @@ public class STStandaloneTool
                 rendererParam = false;
                 stst.setFormatRenderer(arg);
             }
+            else if (widthParam)
+            {
+                widthParam = false;
+                stst.setLineWidth(arg);
+            }
             else if (startStopParam)
             {
                 startStopParam = false;
@@ -754,6 +781,10 @@ public class STStandaloneTool
                 if (arg.equals("-n"))
                 {
                     stst.setNoIndent(true);
+                }
+                else if (arg.equals("-w"))
+                {
+                    widthParam = true;
                 }
                 else if (arg.equals("-r"))
                 {
