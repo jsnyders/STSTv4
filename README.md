@@ -100,7 +100,7 @@ The StringTemplate jar used by STSTv4 has been built from the StringTemplate mas
 
 1. you need a JDK and ant to build it.
    ```
-   marco@lizard /opt/working-dir/STSTv4 $ java -version
+   STSTv4 $ java -version
    java version "1.6.0_45"
    ```
 
@@ -108,7 +108,7 @@ The StringTemplate jar used by STSTv4 has been built from the StringTemplate mas
 
 1. run ant:
    ```
-marco@lizard /opt/working-dir/STSTv4 $ /opt/apache-ant-1.9.6/bin/ant 
+STSTv4 $ /opt/apache-ant-1.9.6/bin/ant 
 [..snip..]
       [jar] Building jar: /opt/working-dir/STSTv4/build/jar/stst.jar
 
@@ -121,7 +121,7 @@ BUILD SUCCESSFUL
 
 1. try out a test:
    ```
-   marco@lizard /opt/working-dir/STSTv4 $ ./stst.sh -t samples things_HTML.main samples/things_drinks.json
+   STSTv4 $ ./stst.sh -t samples things_HTML.main samples/things_drinks.json
    <h1>Wikipedia has a catigory called 'Fictional beverages' with these listed</h1>
    <ul>
    <li>Alamo Beer</li>
@@ -136,7 +136,7 @@ BUILD SUCCESSFUL
    <li>Swill</li>
    
    </ul>
-   marco@lizard /opt/working-dir/STSTv4 $
+   STSTv4 $
     ```
 
 To use the ``stst.sh``, or the ``stst.bat``, script from your projects just make sure to have the directory that contains the script in your ``PATH``.
