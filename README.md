@@ -95,6 +95,48 @@ See the samples folder. Here are some commands you can try in the samples folder
 ```
 
 ## BUILDING
-You don't need to build anything but if you want too...
 
-You need a JDK and ant to build it. Get the [source](https://github.com/jsnyders/STSTv4) and use ant to build.
+The StringTemplate jar used by STSTv4 has been built from the StringTemplate master branch to get a fix related to the *<% %>* syntax that could be used in a ST dictionary. However you can replace the ``lib/ST-4.0.9.jar`` and the ``lib/antlr-runtime-3.5.2.jar`` jars with the ``lib/ST-4.0.8.jar`` if you do not care about this fix. Update the ``.sh`` and the ``.bat`` scripts accordingly (a runtime of ANTLR is no more included as a relocated package into the ST jar).
+
+1. you need a JDK and ant to build it.
+   ```
+   marco@lizard /opt/working-dir/STSTv4 $ java -version
+   java version "1.6.0_45"
+   ```
+
+1. then clone the STSTv4 repository.
+
+1. run ant:
+   ```
+marco@lizard /opt/working-dir/STSTv4 $ /opt/apache-ant-1.9.6/bin/ant 
+[..snip..]
+      [jar] Building jar: /opt/working-dir/STSTv4/build/jar/stst.jar
+
+all:
+
+BUILD SUCCESSFUL
+   ```
+
+1. to test STSTv4 you need a start script. On Unix the stst.sh script should work without problems (read: resolve its STST_HOME automatically). On Windows edit the stst.bat.init file.
+
+1. try out a test:
+   ```
+   marco@lizard /opt/working-dir/STSTv4 $ ./stst.sh -t samples things_HTML.main samples/things_drinks.json
+   <h1>Wikipedia has a catigory called 'Fictional beverages' with these listed</h1>
+   <ul>
+   <li>Alamo Beer</li>
+   <li>Alaskan Polar Bear Heater</li>
+   <li>Ambrosia</li>
+   <li>Crab juice</li>
+   <li>De-caf Double Half Caf</li>
+   <li>Duff Beer</li>
+   <li>Google Gulp</li>
+   <li>Pan Galactic Gargle Blaster</li>
+   <li>Slurm</li>
+   <li>Swill</li>
+   
+   </ul>
+   marco@lizard /opt/working-dir/STSTv4 $
+    ```
+
+To use the ``stst.sh``, or the ``stst.bat``, script from your projects just make sure to have the directory that contains the script in your ``PATH``.

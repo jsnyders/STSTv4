@@ -52,8 +52,6 @@ import org.stringtemplate.v4.misc.ErrorType;
 import org.stringtemplate.v4.misc.STNoSuchPropertyException;
 import org.stringtemplate.v4.misc.STNoSuchAttributeException;
 
-import st4hidden.org.antlr.runtime.Token;
-
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONArray;
