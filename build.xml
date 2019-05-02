@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project default="all">
-    <property name="version"     value="0.4.1"/><!-- update in STStandaloneTool.java also -->
+    <property file="build.properties"/>
     <property name="src.dir"     value="src"/>
     <property name="build.dir"   value="build"/>
     <property name="classes.dir" value="${build.dir}/classes"/>
@@ -23,7 +23,7 @@
         <delete file="${package}"/>
     </target>
 
-    <target name="compile">
+    <target name="compile" depends="version-number">
         <mkdir dir="${classes.dir}"/>
         <javac includeantruntime="false" srcdir="${src.dir}" destdir="${classes.dir}" classpathref="classpath"/>
         <copy todir="${classes.dir}">
@@ -48,11 +48,24 @@
             <zipfileset dir="." includes="lib/**"/>
             <zipfileset dir="." includes="samples/**"/>
             <zipfileset dir="." includes="${jar}" fullpath="lib/stst.jar"/>
+            <zipfileset dir="." includes="build.properties"/>
+            <zipfileset dir="." includes="pom.xml"/>
             <zipfileset dir="." includes="README.md"/>
             <zipfileset dir="." includes="LICENSE.txt"/>
             <zipfileset dir="." includes="stst.sh.init"/>
             <zipfileset dir="." includes="stst.bat.init"/>
         </zip>
+    </target>
+    
+    <target name="version-number">
+        <replaceregexp file="${src.dir}/jjs/stst/STStandaloneTool.java"
+            match="VERSION = &quot;[a-z0-9._-]+&quot;"
+            flags="i"
+            replace='VERSION = &quot;${version}&quot;'/>
+        <replaceregexp file="pom.xml"
+            match="&lt;artifactId&gt;STSTv4&lt;/artifactId&gt;&lt;version&gt;[a-z0-9._-]+&lt;/version&gt;"
+            flags="i"
+            replace='&lt;artifactId&gt;STSTv4&lt;/artifactId&gt;&lt;version&gt;${version}&lt;/version&gt;'/>
     </target>
 
 </project>
