@@ -52,7 +52,7 @@ import org.stringtemplate.v4.misc.ErrorType;
 import org.stringtemplate.v4.misc.STNoSuchPropertyException;
 import org.stringtemplate.v4.misc.STNoSuchAttributeException;
 
-import st4hidden.org.antlr.runtime.Token;
+//import st4hidden.org.antlr.runtime.Token;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -117,7 +117,6 @@ import org.json.JSONArray;
  * 
  * TODO
  *  - update/test samples, examples, tests
- *  - automate build version and build number
  *  - independent encoding control for template, data, output
  *  - take some options from ENV VAR or other configuration. Useful for -s
  *  - configurable template and group file name extensions
@@ -135,7 +134,7 @@ import org.json.JSONArray;
  */
 public class STStandaloneTool
 {
-    private static final String VERSION = "0.4.1"; // keep in sync with version in build.xml
+    private static final String VERSION = "0.4.2"; // automatically updated by build.xml
     private static final String RESOURCE_BUNDLE_NAME = "jjs.stst.ApplicationMessages";
 
     private static ResourceBundle resources = null;

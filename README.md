@@ -98,3 +98,7 @@ See the samples folder. Here are some commands you can try in the samples folder
 You don't need to build anything but if you want too...
 
 You need a JDK and ant to build it. Get the [source](https://github.com/jsnyders/STSTv4) and use ant to build.
+
+Starting with version 0.4.2, you can also use maven to build. When you update the version number in 
+`build.properties`, run `ant version-number` to update the Java code and the `pom.xml` file. The ant
+build includes this task automatically.
