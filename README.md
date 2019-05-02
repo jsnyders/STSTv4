@@ -94,6 +94,79 @@ See the samples folder. Here are some commands you can try in the samples folder
     stst -s "<>" things_ab things_song.json
 ```
 
+## Group and raw file examples
+
+All these examples assume that you have a `data.json` file
+in the current directory with this content:
+
+```
+{"foo":"bar"}
+```
+
+### Template group file
+
+Create a file named `main.stg` with this content:
+
+```
+greeting(foo) ::= <<
+hello <foo>
+>>
+```
+
+Generate output:
+
+```
+stst -s "<>" main.greeting data.json
+```
+
+### Template group directory
+
+Create a file named `greeting.st` with this content:
+
+```
+greeting(foo) ::= <<
+hello <foo>
+>>
+```
+
+Generate output:
+
+```
+stst -s "<>" greeting data.json
+```
+
+### Template group directory with raw templates
+
+Create a file named `greeting.st` with this content:
+
+```
+hello <foo>
+```
+
+Generate output:
+
+```
+stst -s "<>" -r greeting data.json
+```
+
+### Template raw single file without a group
+
+This mode is like `-r` but does not require the file name
+to end with ".st". Group features will not work because this
+option only reads the specified file. 
+
+Create a file named `greeting.txt` with this content:
+
+```
+hello <foo>
+```
+
+Generate output:
+
+```
+stst -s "<>" -R greeting.txt data.json
+```
+
 ## BUILDING
 You don't need to build anything but if you want too...
 

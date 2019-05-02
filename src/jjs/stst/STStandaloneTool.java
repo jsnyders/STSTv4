@@ -35,6 +35,8 @@ import java.io.PrintWriter;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.ResourceBundle;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.stringtemplate.v4.AutoIndentWriter;
 import org.stringtemplate.v4.Interpreter;
@@ -153,6 +155,7 @@ public class STStandaloneTool
     //options
     private boolean noIndent = false;
     private boolean raw = false;
+    private boolean rawSingleFile = false;
     private boolean debugMode = false;
     private boolean verboseMode = false;
     private char startChar = '$';
@@ -229,6 +232,26 @@ public class STStandaloneTool
         this.raw = raw;
     }
 
+    /**
+     * When true, the template file is raw and can have any file name
+     * (the ".st" suffix is not required)
+     * @return true if using raw single file
+     */
+    public boolean isRawSingleFile()
+    {
+        return rawSingleFile;
+    }
+
+    /**
+     * 
+     * @param rawSingleFile true to use raw single file
+     */
+    public void setRawSingleFile(boolean rawSingleFile)
+    {
+        this.rawSingleFile = rawSingleFile;
+    }
+
+    
     /**
      * Controls the StringTemplate start character Delimiter
      * @return char default is $
@@ -486,6 +509,7 @@ public class STStandaloneTool
         sb.append("STStandaloneTool:\n");
         sb.append("  Group: ").append(group.getName()).append("\n");
         sb.append("  Raw: ").append(raw ? "yes" : "no").append("\n");
+        sb.append("  Raw Single File: ").append(rawSingleFile ? "yes" : "no").append("\n");
         sb.append("  Indent: ").append(noIndent ? "yes" : "no").append("\n");
         sb.append("  Verbose: ").append(verboseMode ? "yes" : "no").append("\n");
         sb.append("  Debug: ").append(debugMode ? "yes" : "no").append("\n");
@@ -563,7 +587,13 @@ public class STStandaloneTool
 
         try {
             compileError = false;
-            st = group.getInstanceOf(templateName);
+            if( isRawSingleFile() ) {
+                String templateContent = FileUtil.getFileContentAsString(new File(templateName),null);
+                st = new ST(templateContent, startChar, stopChar);
+            }
+            else {
+                st = group.getInstanceOf(templateName);
+            }
             if (st == null)
             {
                 String msg = MessageFormat.format(resources.getString("NoSuchTemplate"), templateName);
@@ -576,6 +606,14 @@ public class STStandaloneTool
             // bug?
             // currently this happens if the template name doesn't match the file name
             compileError = true;
+        } catch (FileNotFoundException ex) {
+                String msg = MessageFormat.format(resources.getString("NoSuchTemplate"), templateName);
+                logError(msg);
+                throw new ExitException();
+        } catch (IOException ex) {
+            String msg = MessageFormat.format(resources.getString("ErrorGettingTemplate"), templateName);
+            logError(msg);
+            throw new ExitException();
         }
         if (compileError)
         {
@@ -789,6 +827,10 @@ public class STStandaloneTool
                 {
                     stst.setRaw(true);
                 }
+                else if (arg.equals("-R"))
+                {
+                    stst.setRawSingleFile(true);
+                }
                 else if (arg.equals("-d") || arg.equals("-i"))
                 {
                     stst.setDebugMode(true);
@@ -876,20 +918,29 @@ public class STStandaloneTool
         try
         {
             String templateName = null;
-            // check for group in templateSpec
-            int dot = templateSpec.indexOf('.');
-            if (dot != -1)
-            {
-                String groupName = templateSpec.substring(0, dot);
-                templateName = templateSpec.substring(dot + 1);
-
-                stst.setGroup(templateDir, groupName, encoding);
-            }
-            else
-            {
-                stst.setGroup(templateDir.getPath(), encoding);
+            
+            // when raw single file is enabled, the template name is the file name
+            // and we create the template directly from the raw file
+            if( stst.isRawSingleFile() ) {                
                 templateName = templateSpec;
             }
+            else {
+                // check for group in templateSpec
+                int dot = templateSpec.indexOf('.');
+                if (dot != -1)
+                {
+                    String groupName = templateSpec.substring(0, dot);
+                    templateName = templateSpec.substring(dot + 1);
+
+                    stst.setGroup(templateDir, groupName, encoding);
+                }
+                else
+                {
+                    stst.setGroup(templateDir.getPath(), encoding);
+                    templateName = templateSpec;
+                }
+            }
+            
 
             if (data != null)
             {
